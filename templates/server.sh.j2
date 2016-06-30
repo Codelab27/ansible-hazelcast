@@ -1,0 +1,41 @@
+#!/bin/sh
+
+PRG="$0"
+PRGDIR=`dirname "$PRG"`
+HAZELCAST_HOME={{ hazelcast_home }}
+
+if [ $JAVA_HOME ]
+then
+	echo "JAVA_HOME found at $JAVA_HOME"
+	RUN_JAVA=$JAVA_HOME/bin/java
+else
+	echo "JAVA_HOME environment variable not available."
+    RUN_JAVA=`which java 2>/dev/null`
+fi
+
+if [ -z $RUN_JAVA ]
+then
+    echo "JAVA could not be found in your system."
+    echo "please install Java 1.6 or higher!!!"
+    exit 1
+fi
+
+echo "Path to Java : $RUN_JAVA"
+
+
+if [ "x$MIN_HEAP_SIZE" != "x" ]; then
+	JAVA_OPTS="$JAVA_OPTS -Xms${MIN_HEAP_SIZE}"
+fi
+
+if [ "x$MAX_HEAP_SIZE" != "x" ]; then
+	JAVA_OPTS="$JAVA_OPTS -Xmx${MAX_HEAP_SIZE}"
+fi
+
+echo "########################################"
+echo "# RUN_JAVA=$RUN_JAVA"
+echo "# JAVA_OPTS=$JAVA_OPTS"
+echo "# starting now...."
+echo "########################################"
+
+java -server -Dhazelcast.config=$HAZELCAST_HOME/conf/hazelcast.xml -cp $HAZELCAST_HOME/lib/ch.qos.logback.logback-classic-1.1.7.jar:$HAZELCAST_HOME/lib/ch.qos.logback.logback-core-1.1.7.jar:$HAZELCAST_HOME/lib/hazelcast-all-3.6.3.jar:$HAZELCAST_HOMElib/org.slf4j.slf4j-api-1.7.21.jar:$HAZELCAST_HOME/conf/ com.hazelcast.core.server.StartServer &
+sleep infinity

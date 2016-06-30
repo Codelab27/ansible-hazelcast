@@ -1,0 +1,4 @@
+---
+hazelcast_version: 3.6.3
+hazelcast_log4j_dir: /var/log/hazelcast/
+hazelcast_home: /opt/hazelcast/

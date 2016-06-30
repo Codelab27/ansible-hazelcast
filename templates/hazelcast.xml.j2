@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.7.xsd"
+           xmlns="http://www.hazelcast.com/schema/config"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <properties>
+    <property name="hazelcast.logging.type">slf4j</property>
+  </properties>
+  <management-center enabled="true">http://172.30.0.16:8080/mancenter</management-center>
+  <instance-name>ING_Hazelcast</instance-name>
+  <network>
+    <port auto-increment="true" port-count="100">5701</port>
+    <outbound-ports>
+        <!--
+        Allowed port range when connecting to other nodes.
+        0 or * means use system provided port.
+        -->
+      <ports>0</ports>
+    </outbound-ports>
+    <join>
+      <tcp-ip enabled="true">
+{% for host in groups['hazelcast-cluster'] -%}
+<member> {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }} </member>
+
+{%- endfor %}                
+      </tcp-ip>
+    </join>
+  </network>
+</hazelcast>

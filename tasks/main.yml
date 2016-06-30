@@ -1,0 +1,48 @@
+---
+- group:
+    name: hazelcast
+    state: present
+    system: yes
+- user:
+    name: hazelcast
+    comment: hazelcast user
+    group: hazelcast
+    system: yes
+
+- file: path={{ hazelcast_home}} state=directory
+- file: path={{ hazelcast_home}}/conf state=directory
+- file: path={{ hazelcast_home }} state=directory owner=hazelcast group=hazelcast recurse=yes
+
+- file: path=/var/log/hazelcast state=directory
+- file: path=/var/log/hazelcast state=directory owner=hazelcast group=hazelcast
+
+- name: install lxml
+  yum: name=python-lxml state=installed
+
+- name: Download hazelcast artifact from maven repository
+  maven_artifact: group_id=com.hazelcast artifact_id=hazelcast version={{ hazelcast_version }} dest={{ hazelcast_home }}/lib/hazelcast-all-{{ hazelcast_version }}.jar
+
+- name: Download slf4j-api artifact from maven repository
+  maven_artifact: group_id=org.slf4j artifact_id=slf4j-api version=1.7.21 dest={{ hazelcast_home }}/lib/org.slf4j.slf4j-api-1.7.21.jar
+
+- name: Download logback-classic artifact from maven repository
+  maven_artifact: group_id=ch.qos.logback artifact_id=logback-classic version=1.1.7 dest={{ hazelcast_home }}/lib/ch.qos.logback.logback-classic-1.1.7.jar
+
+- name: Download logback-core artifact from maven repository
+  maven_artifact: group_id=ch.qos.logback artifact_id=logback-core version=1.1.7 dest={{ hazelcast_home }}/lib/ch.qos.logback.logback-core-1.1.7.jar  
+
+- name: server.sh
+  template: src=server.sh.j2 dest={{ hazelcast_home }}/server.sh mode=0777
+
+- name: hazelcast.conf
+  template: src=hazelcast.conf.j2 dest=/etc/init/hazelcast.conf  
+
+- name: hazelcast.xml
+  template: src=hazelcast.xml.j2 dest={{ hazelcast_home }}/conf/hazelcast.xml    
+
+- name: hazelcast.logback.properties
+  template: src=hazelcast.logback.xml.j2 dest={{ hazelcast_home }}/conf/logback.xml
+
+- name: Start hazelcast
+  service: name=hazelcast state=started enabled=yes
+  tags: deploy

@@ -1,0 +1,15 @@
+description "Hazelcast"
+
+limit nofile 32768 32768
+
+start on runlevel [2345]
+stop on [!2345]
+
+respawn
+respawn limit 10 5
+
+umask 007
+
+kill timeout 300
+
+exec sudo -u hazelcast {{ hazelcast_home }}/server.sh
